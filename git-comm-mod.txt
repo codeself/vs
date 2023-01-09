@@ -1,0 +1,143 @@
+模板格式：
+module-name: 修改了什么或者解决了什么问题  
+
+Type: fix/improvement/make/test/feature/refactor/docs/style
+
+修改说明
+
+Type类型说明：
+fix: bug修复
+improvement：代码优化
+make：make脚本以及makefile修改
+test：单元测试用例代码修改或增加
+feature：新增功能
+refactor：重构
+docs：文档修改或增加
+style：代码样式修改
+
+
+
+示例1：
+commit 82ec908acbab63af64b1b912babcab9a16d9f0e6
+Author: Daniel Béreš <dberes@cisco.com>
+Date:   Wed Jul 27 12:22:39 2022 +0000
+
+    gomemif: update to libmemif version 4.0
+    
+    Type: improvement
+    
+    This patch provides:
+    1. interrupt mode support,
+    2. abstract socket support,
+    3. overriding responder example and divides it to two examples:
+            -icmp_responder_cb
+            -icmp_responder_poll
+    
+    Signed-off-by: Daniel Béreš <dberes@cisco.com>
+    Change-Id: I99c86d053521760c457541fc596ed554f4077608
+
+示例2(coredump问题要提交调用栈)：
+commit a58055d6b205426780e2737d3d66bbd872732d78
+Author: Peter Morrow <pdmorrow@gmail.com>
+Date:   Wed Oct 5 11:50:22 2022 +0100
+
+    fib: only invoke adj delegate create callback on mcast adj create
+      
+    Type: fix
+
+    adj_delegate_adj_created() is incorrectly called when an existing
+    adj is found and returned. This can lead to crashes in some cases
+    in the pmtu delegate:
+    
+    (gdb) bt
+    0  0x00007f2aa8fc9ce1 in raise () from /lib/x86_64-linux-gnu/libc.so.6
+    1  0x00007f2aa8fb3537 in abort () from /lib/x86_64-linux-gnu/libc.so.6
+    2  0x0000564361b5403a in os_exit (code=code@entry=1) at ./src/vpp/vnet/main.c:437
+    3  0x00007f2aa9271a3e in unix_signal_handler (signum=11, si=<optimized out>, uc=<optimized out>) at ./src/vlib/unix/main.c:188
+    4  <signal handler called>
+    5  0x00007f2aa9970d5a in fib_table_get_table_id_for_sw_if_index (proto=FIB_PROTOCOL_IP4, sw_if_index=<optimized out>) at ./src/vnet/fib/fib_table.c:1156
+    6  0x00007f2aa964aebf in ip_pmtu_adj_delegate_adj_created (ai=8) at ./src/vnet/ip/ip_path_mtu.c:197
+    7  0x00007f2aa9993ee5 in adj_delegate_adj_created (ai=ai@entry=8) at ./src/vnet/adj/adj_delegate.c:166
+    8  0x00007f2aa998dbde in adj_mcast_add_or_lock (proto=proto@entry=FIB_PROTOCOL_IP6, link_type=link_type@entry=VNET_LINK_IP6, sw_if_index=sw_if_index@entry=7) at ./src/vnet/adj/adj_mcast.c:95
+    9  0x00007f2aa95c7b3e in ip6_link_enable (sw_if_index=7, link_local_addr=link_local_addr@entry=0x0) at ./src/vnet/ip/ip6_link.c:217
+    10 0x00007f2aa9621587 in vl_api_sw_interface_ip_enable_disable_t_handler (mp=0x7f2a4fa5ad10) at ./src/vnet/ip/ip_api.c:108
+    11 0x00007f2aaa3b7e44 in msg_handler_internal (free_it=0, do_it=1, trace_it=<optimized out>, msg_len=<optimized out>, the_msg=0x7f2a4fa5ad10, am=0x7f2aaa3cc020 <api_global_main>) at ./src/vlibapi/api_shared.c:593
+    12 vl_msg_api_handler_no_free (the_msg=0x7f2a4fa5ad10, msg_len=<optimized out>) at ./src/vlibapi/api_shared.c:810
+    13 0x00007f2aaa3a1702 in vl_socket_process_api_msg (rp=<optimized out>, input_v=<optimized out>) at ./src/vlibmemory/socket_api.c:208
+    14 0x00007f2aaa3a95d8 in vl_api_clnt_process (vm=<optimized out>, node=<optimized out>, f=<optimized out>) at ./src/vlibmemory/memclnt_api.c:429
+    15 0x00007f2aa9226f37 in vlib_process_bootstrap (_a=<optimized out>) at ./src/vlib/main.c:1235
+    16 0x00007f2aa91824a8 in clib_calljmp () at /builds/graphiant/graphnos/vpp/debian/output/source_dir/src/vppinfra/longjmp.S:123
+    17 0x00007f2a47cf5d60 in ?? ()
+    18 0x00007f2aa922853f in vlib_process_startup (f=0x0, p=0x7f2a494dc000, vm=0x7f2a489ed680) at ./src/vlib/main.c:1260
+    19 dispatch_process (vm=0x7f2a489ed680, p=0x7f2a494dc000, last_time_stamp=<optimized out>, f=0x0) at ./src/vlib/main.c:1316
+    20 0x0000000000000000 in ?? ()
+    (gdb)
+    
+    Change-Id: I2d3c041e0be8284471771c7882c89f743baab0e5
+    Signed-off-by: Peter Morrow <pdmorrow@gmail.com>
+
+示例3：
+commit abd5669422c5805da5135496d5e5a394fa5aa602
+Author: Marvin Liu <yong.liu@intel.com>
+Date:   Wed Aug 17 09:38:40 2022 +0800
+
+    vlib: introduce DMA infrastructure
+        
+    Type: feature
+    
+    This patch introduces DMA infrastructure into vlib. This is well known
+    that large amount of memory movements will drain core resource. Nowadays
+    more and more hardware accelerators were designed out for freeing core
+    from this burden. Meanwhile some restrictions still remained when
+    utilizing hardware accelerators, e.g. cross numa throughput will have a
+    significant drop compared to same node. Normally the number of hardware
+    accelerator instances will less than cores number, not to mention that
+    applications number will even beyond the number of cores. Some hardware
+    may support share virtual address with cores, while others are not.
+    
+    Here we introduce new DMA infrastructure which can fulfill the
+    requirements of vpp applications like session and memif and in the
+    meantime dealing with hardware limitations.
+    
+    Here is some design backgrounds:
+    
+      Backend is the abstract of resource which allocated from DMA device
+      and can do some basic operations like configuration, DMA copy and
+      result query.
+    
+      Config is the abstract of application DMA requirement. Application
+      need to request an unique config index from DMA infrastructure. This
+      unique config index is associated with backend resource. Two options
+      cpu fallback and barrier before last can be specified in config.
+      DMA transfer will be performed by CPU when backend is busy if cpu
+      fallback option is enabled. DMA transfer callback will be in order
+      if barrier before last option is enabled.
+    
+      We constructs all the stuffs that DMA transfer request needed into
+      DMA batch. It contains the pattern of DMA descriptors and function
+      pointers for submission and callback. One DMA transfer request need
+      multiple times batch update and one time batch submission.
+    
+      DMA backends will assigned to config's workers threads equally. Lock
+      will be used for thread-safety if same backends assigned to multiple
+      threads. Backend node will check all the pending requests in worker
+      thread and do callback with the pointer of DMA batch if transfer
+      completed. Application can utilize cookie in DMA batch for selves
+      usage.
+    
+    DMA architecture:
+    
+       +----------+   +----------+           +----------+   +----------+
+       | Config1  |   | Config2  |           | Config1  |   | Config2  |
+       +----------+   +----------+           +----------+   +----------+
+            ||             ||                     ||             ||
+       +-------------------------+           +-------------------------+
+       |  DMA polling thread A   |           |  DMA polling thread B   |
+       +-------------------------+           +-------------------------+
+                   ||                                     ||
+               +----------+                          +----------+
+               | Backend1 |                          | Backend2 |
+               +----------+                          +----------+
+
+    Signed-off-by: Marvin Liu <yong.liu@intel.com>
+    Change-Id: I1725e0c26687985aac29618c9abe4f5e0de08ebf
