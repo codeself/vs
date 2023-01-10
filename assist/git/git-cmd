@@ -1,4 +1,28 @@
-模板格式：
+1、git 配置
+设置用户名
+git config --global user.name username
+设置邮箱
+git config --global user.email useremail@mail.com
+设置git commit 提交模板
+git config --global commit.template xxx_template
+设置git commit 提交模板的编辑器
+git config --global core.editor vim
+
+2、git 常用命令
+克隆仓库
+git clone https://gitea.vs-sec.net/xabc.git
+查看仓库所有分支
+git branch -a
+创建本地分支xxx-branch和远程分支关联，并切换到xxx-branch
+git checkout -b xxx-branch origin/xxx-branch
+更新代码
+git pull
+提交代码
+git commit
+推送代码到远程仓库
+git push origin xxx-branch 
+
+2、git模板格式：
 module-name: 修改了什么或者解决了什么问题  
 
 Type: fix/improvement/make/test/feature/refactor/docs/style
