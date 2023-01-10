@@ -3,7 +3,18 @@ module-name: 修改了什么或者解决了什么问题
 
 Type: fix/improvement/make/test/feature/refactor/docs/style
 
-修改说明
+修改说明段落
+如果是解决BUG需要在修改说明段落里写明bug id和bug url。
+示例(修改说明段落的开头几行，独立成行)：
+Bug id: 123456/123457/123458/123459
+Bug url: www.jira.com/123456
+Bug url: www.jira.com/123457
+Bug url: www.jira.com/123458
+Bug url: www.jira.com/123459
+问题复现步骤及修改方法
+
+
+
 
 Type类型说明：
 fix: bug修复
@@ -36,7 +47,54 @@ Date:   Wed Jul 27 12:22:39 2022 +0000
     Signed-off-by: Daniel Béreš <dberes@cisco.com>
     Change-Id: I99c86d053521760c457541fc596ed554f4077608
 
-示例2(coredump问题要提交调用栈)：
+示例2：
+commit 0c50dbb7679039b02d4057fc6c45c87d96f8e7aa
+Author: Neale Ranns <neale@graphiant.com>
+Date:   Fri Aug 5 03:40:43 2022 +0000
+
+    bfd: More descriptive error codes during packet receive handling
+    
+    Type: improvement
+    
+    Signed-off-by: Neale Ranns <neale@graphiant.com>
+    Change-Id: I8907fecde6d48f5362f0f91372d5a9a1bba6f931
+
+示例3：
+commit 96158834db03036f9885654f198a02b68fc98830
+Author: Pim van Pelt <pim@ipng.nl>
+Date:   Fri Jun 3 21:05:26 2022 +0000
+
+    vlib: fix crash on packet on deleted interface
+        
+    Type: fix
+    
+    If ip4_neighbor_probe (or any other) is sending packet to a deleted interface,
+    ASSERT trips and dataplane crashes. Example:
+    
+    create loopback interface instance 0
+    set interface ip address loop0 10.0.0.1/32
+    set interface state GigabitEthernet3/0/1 up
+    set interface state loop0 up
+    set interface state loop0 down
+    set interface ip address del loop0 10.0.0.1/32
+    delete loopback interface intfc loop0
+    set interface state GigabitEthernet3/0/1 down
+    set interface state GigabitEthernet3/0/1 up
+    comment { the following crashes VPP }
+    set interface state GigabitEthernet3/0/1 down
+    
+    This sequence reliably crashes VPP:
+    
+    (gdb)p n->name
+    $4 = (u8 *) 0x7fff82b47578 "interface-3-output-deleted”
+    
+    If the interface doesn't exist, return ~0 and be tolerant of this in the
+    two call sites of counter_index()
+
+    Signed-off-by: Pim van Pelt <pim@ipng.nl>
+    Change-Id: I90ec58fc0d14b20c9822703fe914f2ce89acb18d
+
+示例4(coredump问题要提交调用栈)：
 commit a58055d6b205426780e2737d3d66bbd872732d78
 Author: Peter Morrow <pdmorrow@gmail.com>
 Date:   Wed Oct 5 11:50:22 2022 +0100
@@ -45,6 +103,8 @@ Date:   Wed Oct 5 11:50:22 2022 +0100
       
     Type: fix
 
+    Bug id: 123456
+    Bug url: www.jira.com/123456
     adj_delegate_adj_created() is incorrectly called when an existing
     adj is found and returned. This can lead to crashes in some cases
     in the pmtu delegate:
@@ -76,7 +136,7 @@ Date:   Wed Oct 5 11:50:22 2022 +0100
     Change-Id: I2d3c041e0be8284471771c7882c89f743baab0e5
     Signed-off-by: Peter Morrow <pdmorrow@gmail.com>
 
-示例3：
+示例5：
 commit abd5669422c5805da5135496d5e5a394fa5aa602
 Author: Marvin Liu <yong.liu@intel.com>
 Date:   Wed Aug 17 09:38:40 2022 +0800
