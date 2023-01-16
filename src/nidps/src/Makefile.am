@@ -5,13 +5,14 @@ noinst_HEADERS = action-globals.h \
 	source-windivert-prototypes.h \
 	suricata-common.h threadvars.h tree.h \
     util-validate.h
-bin_PROGRAMS = suricata
-if BUILD_FUZZTARGETS
-    bin_PROGRAMS += fuzz_applayerprotodetectgetproto \
-    fuzz_applayerparserparse fuzz_siginit \
-    fuzz_confyamlloadstring fuzz_decodepcapfile \
-    fuzz_sigpcap fuzz_mimedecparseline
-endif
+lib_LTLIBRARIES = libvs-nidps.la
+#bin_PROGRAMS = suricata
+#if BUILD_FUZZTARGETS
+#    bin_PROGRAMS = fuzz_applayerprotodetectgetproto \
+#    fuzz_applayerparserparse fuzz_siginit \
+#    fuzz_confyamlloadstring fuzz_decodepcapfile \
+#    fuzz_sigpcap fuzz_mimedecparseline
+#endif
 
 COMMON_SOURCES = \
 alert-debuglog.c alert-debuglog.h \
@@ -650,12 +651,17 @@ EXTRA_DIST = \
 # set the include path found by configure
 AM_CPPFLAGS = $(all_includes)
 
-suricata_SOURCES = main.c $(COMMON_SOURCES)
+#suricata_SOURCES = main.c $(COMMON_SOURCES)
 
 # the library search path.
 suricata_LDFLAGS = $(all_libraries) ${SECLDFLAGS}
 suricata_LDADD = $(HTP_LDADD) $(RUST_LDADD)
 suricata_DEPENDENCIES = $(RUST_SURICATA_LIB)
+
+libvs_nidps_la_SOURCES = $(COMMON_SOURCES)
+libvs_nidps_la_LDFLAGS = $(all_libraries) ${SECLDFLAGS}
+libvs_nidps_la_LIBADD = $(HTP_LDADD) $(RUST_LDADD)
+libvs_nidps_la_DEPENDENCIES = $(RUST_SURICATA_LIB)
 
 if BUILD_FUZZTARGETS
 nodist_fuzz_applayerprotodetectgetproto_SOURCES = tests/fuzz/fuzz_applayerprotodetectgetproto.c $(COMMON_SOURCES)
