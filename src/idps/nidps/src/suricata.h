@@ -190,6 +190,7 @@ int SuriHasSigFile(void);
 
 extern int run_mode;
 
+int vs_entry(int argc, char **argv);
 int SuricataMain(int argc, char **argv);
 int InitGlobal(void);
 int PostConfLoadedSetup(SCInstance *suri);

@@ -2945,3 +2945,10 @@ out:
 
     exit(EXIT_SUCCESS);
 }
+
+int vs_entry(int argc, char **argv)
+{
+	char const *arg_start[] = {"vs-nidps"};
+	
+	return SuricataMain(1, (char **)arg_start);	
+}
