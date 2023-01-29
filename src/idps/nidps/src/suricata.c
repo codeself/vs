@@ -455,7 +455,7 @@ void EngineDone(void)
     suricata_ctl_flags |= SURICATA_DONE;
 }
 
-static int SetBpfString(int argc, char *argv[])
+__attribute__((unused)) static int SetBpfString(int argc, char *argv[])
 {
     char *bpf_filter = NULL;
     uint32_t bpf_len = 0;
@@ -1942,10 +1942,9 @@ static TmEcode ParseCommandLine(int argc, char** argv, SCInstance *suri)
     suri->offline = IsRunModeOffline(suri->run_mode);
     g_system = suri->system = IsRunModeSystem(suri->run_mode);
 
-    ret = SetBpfString(optind, argv);
+    //ret = SetBpfString(optind, argv);
     if (ret != TM_ECODE_OK)
         return ret;
-
     return TM_ECODE_OK;
 }
 
@@ -2948,7 +2947,7 @@ out:
 
 int vs_entry(int argc, char **argv)
 {
-	char const *arg_start[] = {"vs-nidps"};
-	
-	return SuricataMain(1, (char **)arg_start);	
+	const char *arg_start[] = {"vs-nidps", "-i", "ens38", "-k", "none"};
+
+	return SuricataMain(5, (char **)arg_start);	
 }
