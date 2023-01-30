@@ -203,4 +203,14 @@ int vs_base64_decode(char *in_str, int in_len, char *out_str);
 */
 int vs_random_str(uint8_t *out, uint32_t out_size, uint32_t out_len);
 
+
+/*
+ * key generate
+ *
+ * @params
+ *		key: output key
+ *		seed1: seed
+ *		seed2: seed 
+ * */
+void vs_key_generator(uint8_t key[16], uint32_t seed1, uint32_t seed2);
 #endif
