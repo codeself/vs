@@ -1,0 +1,1 @@
+gcc -o wbcrypt test_util.c wb_aes_crypt.c wbcrypt.c -L/home/cj/wbaes-master/test/test/ -lvs-wb-aes
