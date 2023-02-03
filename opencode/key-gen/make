@@ -1,0 +1,1 @@
+gcc -o nidps-engine-aes vs_nidps_crypt.c vs_nidps_key.c vs_nidps_key.h -lssl -lcrypto
