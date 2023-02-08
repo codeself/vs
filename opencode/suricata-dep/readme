@@ -1,0 +1,52 @@
+1、设置编译链环境变量
+	export PATH=$CACHE_PATH:/home/compile/toolchain/bin/
+	export PATH=$PATH:$HOME/.cargo/bin
+	export target_host=aarch64-unknown-linux-gnu  //这里的target以实际为准
+	export AR=$target_host-ar
+	export AS=$target_host-as
+	export CC=$target_host-gcc
+	export CXX=$target_host-g++
+	export LD=$target_host-ld
+	export NM=$target_host-nm
+	export OBJDUMP=$target_host-objdump
+	export STRIP=$target_host-strip
+2、编译库
+	如果编译过程中提示automake不存在，可从http://ftp.gnu.org/gnu/automake/下载对应版本的automake
+	编译环境里面先安装autoconf工具。sudo apt install -y autoconf
+	2.1、编译libpcap库
+		cd libpcap-master
+		./configure --host=aarch64-unknown-linux-gnu
+		make
+	2.2、编译yaml库
+		cd libyaml-master
+		autoreconf --install
+		autoconf
+		./configure --host=aarch64-unknown-linux-gnu
+		make
+	2.3、编译pcre库
+		cd pcre-8.43
+		./configure --host=aarch64-unknown-linux-gnu
+		make
+	2.4、编译iconv库
+		cd libiconv-1.16
+		./configure --host=aarch64-unknown-linux-gnu
+		make
+	2.5、编译zlib库
+		cd zlib-master
+		./configure 
+		make
+	2.6、编译bison库
+		cd bison-3.1
+		./configure --host=aarch64-unknown-linux-gnu
+		make
+	2.7、编译flex库
+		cd flex-2.6.4
+		./configure --host=aarch64-unknown-linux-gnu
+		make
+	2.8、编译jasson库
+		cd jansson-master
+		autoreconf -i
+		./configure --host=aarch64-unknown-linux-gnu
+		make
+	2.9、htp库
+		libhtp.so库在idd-nidps-engine源码里，编译idd-nidps-engine时一并编译。
