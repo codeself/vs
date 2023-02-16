@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <sched.h>
-#include "atomic_defs.h"
-#include "rqueue.h"
+#include "vs_atomic_defs.h"
+#include "vs_rqueue.h"
 
 #define RQUEUE_FLAG_HEAD   (0x01)
 #define RQUEUE_FLAG_UPDATE (0x02)

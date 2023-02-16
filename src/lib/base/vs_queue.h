@@ -1,9 +1,3 @@
-/** 
- * @file queue.h
- * @author Andrea Guzzo
- * @date 22/10/2013
- * @brief lock-free queue implementation
- */
 #ifndef HL_QUEUE_H
 #define HL_QUEUE_H
 

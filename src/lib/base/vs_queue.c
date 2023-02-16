@@ -1,14 +1,12 @@
-/* linked queue management library - by xant */
-
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
 #include <sched.h>
-#include "queue.h"
-#include "refcnt.h"
-#include "rqueue.h"
-#include "atomic_defs.h"
+#include "vs_queue.h"
+#include "vs_refcnt.h"
+#include "vs_rqueue.h"
+#include "vs_atomic_defs.h"
 
 #ifdef USE_PACKED_STRUCTURES
 #define PACK_IF_NECESSARY __attribute__((packed))

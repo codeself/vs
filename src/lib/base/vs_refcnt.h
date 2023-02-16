@@ -1,16 +1,3 @@
-/**
- * @file refcnt.h
- *
- * @brief lock-free refcount framework
- *
- * Allows to manage refcounting on pointers accessed by multiple threads.
- * Facilities to atomically reference/dereference pointers are available
- * and are implemented using only the atomic builtins and without any
- * mutex or lock
- *
- */
-
-
 #ifndef HL_REFCNT_H
 #define HL_REFCNT_H
 
