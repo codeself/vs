@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <fcntl.h>
 #include <ctype.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -366,4 +367,24 @@ int vs_random_str(uint8_t *out, uint32_t out_size, uint32_t out_len)
 	}
 
 	return VS_BASE_OK;
+}
+
+int vs_get_file_size(char *file)
+{
+	int fd;
+	struct stat istat;
+
+	if (NULL == file)
+		return VS_BASE_ERR_1;
+
+	fd = open(file, O_RDONLY, S_IREAD);
+	if( fd < 0 )
+		return VS_BASE_ERR_1;
+
+	fstat(fd, &istat);
+
+	if (fd > 0)
+		close(fd);
+
+	return istat.st_size;
 }

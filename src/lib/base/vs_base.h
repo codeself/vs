@@ -12,6 +12,7 @@
 #define VS_BASE_ERR				1
 #define VS_BASE_SERVER_NULL		2
 #define VS_BASE64_ERR			(-1)
+#define VS_BASE_ERR_1			(-1)
 
 #define VS_MSG_DATA_MAX_LEN		(64*1024)
 
@@ -213,4 +214,15 @@ int vs_random_str(uint8_t *out, uint32_t out_size, uint32_t out_len);
  *		seed2: seed 
  * */
 void vs_key_generator(uint8_t key[16], uint32_t seed1, uint32_t seed2);
+
+/*
+ * get file size
+ *
+ * @params
+ *		file: filename,full path
+ * @return
+ * 		return file size
+ * 		< 0, fail
+ * */
+int vs_get_file_size(char *file);
 #endif
