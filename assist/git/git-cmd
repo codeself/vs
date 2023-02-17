@@ -23,11 +23,11 @@ git commit
 git push origin xxx-branch 
 
 2、git模板格式：
-module-name: 修改了什么或者解决了什么问题  
+[module-name]: [修改了什么或者解决了什么问题]
 
 Type: fix/improvement/make/test/feature/refactor/docs/style
 
-修改说明段落
+[修改说明段落]
 如果是解决BUG需要在修改说明段落里写明bug id和bug url。
 示例(修改说明段落的开头几行，独立成行)：
 Bug id: 123456/123457/123458/123459
@@ -38,7 +38,7 @@ Bug url: www.jira.com/123459
 问题复现步骤及修改方法
 
 
-
+[]里的内容需要按实际填入
 
 Type类型说明：
 fix: bug修复
@@ -47,8 +47,10 @@ make：make脚本以及makefile修改
 test：单元测试用例代码修改或增加
 feature：新增功能
 refactor：重构
+dir：代码目录名修改及增加
 docs：文档修改或增加
 style：代码样式修改
+opensource：添加开源代码(备份用)，开源代码合入到项目代码算作feature
 
 
 

@@ -1,5 +1,5 @@
-module-name: 修改了什么或者解决了什么问题
+[module-name]: [修改了什么或者解决了什么问题]
 
-Type: opensource/fix/improvement/make/test/feature/refactor/docs/style/dir
+Type: fix/improvement/make/test/feature/refactor/dir/docs/style/opensource/
  
-修改说明段落
+[修改说明]
