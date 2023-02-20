@@ -1,4 +1,5 @@
 aes_whitebox_compiler 用来生成TABEL，用本地g++编译，不是用交叉链编译，编译过程中运行aes_whitebox_compiler程序生成TABLE
+aes_128/aes_256/aes_512 区别在于GenerateTables()生成的TABEL不同
 
 # AES Whitebox
 
