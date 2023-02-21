@@ -229,7 +229,12 @@ static inline void mark_prev(queue_entry_t *entry) {
 int
 queue_push_left(queue_t *q, void *value)
 {
+	if (NULL == q || NULL == value)
+		return -1;
+
     queue_entry_t *entry = create_entry(q);
+	if (NULL == entry)
+		return -1;
 
     entry->value = value;
 
@@ -277,7 +282,12 @@ queue_push_left(queue_t *q, void *value)
 int
 queue_push_right(queue_t *q, void *value)
 {
+	if (NULL == q || NULL == value)
+		return -1;
+
     queue_entry_t *entry = create_entry(q);
+	if (NULL == entry)
+		return -1;
 
     entry->value = value;
 
@@ -329,6 +339,9 @@ queue_pop_left(queue_t *q)
 {
     void *v = NULL;
     queue_entry_t *entry = NULL;
+
+	if (NULL == q)
+		return NULL;
 
     queue_entry_t *prev = ATOMIC_READ(q->head);
     if (!prev)
@@ -403,6 +416,9 @@ queue_pop_right(queue_t *q)
 {
     void *v = NULL;
     queue_entry_t *entry = NULL;
+
+	if (NULL == q)
+		return NULL;
 
     queue_entry_t *next = ATOMIC_READ(q->tail);
     if (!next)
