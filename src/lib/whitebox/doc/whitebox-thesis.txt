@@ -1,0 +1,5 @@
+
+
+
+[1]CHOW S, EISEN P A, JOHNSON H, et al. White-box cryptography and an AES implementation[C]
+[2]Muir J A. A tutorial on white-box AES[J]. 

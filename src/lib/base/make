@@ -1,1 +1,1 @@
-gcc -g -fPIC -shared -o libvs-base.so vs_base.c vs_queue.c vs_rqueue.c 
+gcc -g -fPIC -shared -o libvs-base.so vs_base.c vs_queue.c vs_rqueue.c vs_comm.c

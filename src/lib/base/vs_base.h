@@ -8,6 +8,10 @@
 #ifndef _VS_BASE_H_
 #define _VS_BASE_H_
 
+#include <stdint.h>
+#include <arpa/inet.h>
+#include <pthread.h>
+
 #define VS_BASE_OK				0
 #define VS_BASE_ERR				1
 #define VS_BASE_SERVER_NULL		2
@@ -16,14 +20,29 @@
 
 #define VS_MSG_DATA_MAX_LEN		(64*1024)
 
+#define VS_COMM_PORT_MAX_LEN	8
+#define VS_COMM_ADDR_MAX_LEN	64
 
-#if 0
-#define VS_COMM_DST_MAX_LEN	256 
-struct vs_comm {
-	int fd;
-	unsigned char dst[VS_COMM_DST_MAX_LEN]; 
+enum vs_comm_sock_add_type {
+	VS_SOCK_ADDR_IP,
+	VS_SOCK_ADDR_HOST
 };
-#endif
+
+struct vs_comm_sock {
+	int fd;
+	pthread_mutex_t mutex;
+	
+	uint8_t addr_type;
+	//addr for ip/host
+	uint8_t sock_addr[VS_COMM_ADDR_MAX_LEN]; 
+	uint8_t sock_port[VS_COMM_PORT_MAX_LEN];
+	uint8_t *send_buff;
+	uint16_t send_buff_size;
+	uint16_t send_len;	
+	uint8_t *rcv_buff;
+	uint16_t rcv_buff_size;
+	uint16_t rcv_len;	
+};
 
 enum vs_evp_crypto_type {
 	VS_EVP_ENCRYPT,
