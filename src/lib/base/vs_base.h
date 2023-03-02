@@ -22,16 +22,33 @@
 
 #define VS_COMM_PORT_MAX_LEN	8
 #define VS_COMM_ADDR_MAX_LEN	64
+#define VS_COMM_OFFLOG_PATH_MAX_LEN	256
 
 enum vs_comm_sock_add_type {
 	VS_SOCK_ADDR_IP,
 	VS_SOCK_ADDR_HOST
 };
 
-struct vs_comm_sock {
+enum vs_comm_sock_type {
+	VS_COMM_SOCK_CLIENT,
+	VS_COMM_SOCK_SERVER
+};
+
+struct vs_offline_log {
+	FILE *fd;
+	pthread_mutex_t mutex;
+	uint32_t max_byte_total;
+	uint32_t file_max_byte_per;
+	uint8_t path[VS_COMM_OFFLOG_PATH_MAX_LEN];
+};
+
+
+//client send heartbeat to server
+struct vs_comm_manager {
 	int fd;
 	pthread_mutex_t mutex;
 	
+	uint8_t sock_type;
 	uint8_t addr_type;
 	//addr for ip/host
 	uint8_t sock_addr[VS_COMM_ADDR_MAX_LEN]; 
@@ -41,7 +58,16 @@ struct vs_comm_sock {
 	uint16_t send_len;	
 	uint8_t *rcv_buff;
 	uint16_t rcv_buff_size;
-	uint16_t rcv_len;	
+	uint16_t rcv_len;
+
+	uint8_t client_max;
+
+	//us
+	uint32_t yield_time;	
+	uint16_t heartbeat_cycle;
+	uint8_t heartbeat_over_times;
+
+	struct vs_offline_log offline_log;	
 };
 
 enum vs_evp_crypto_type {
@@ -122,94 +148,6 @@ uint8_t vs_ip_addr_trans(uint8_t family, const char *ip_str,
  *		VS_BASE_ERR: not all char is digit
 */
 uint8_t vs_str_all_digit(const char *str);
-
-/* 
- * openssl evp encrypt
- * @params
- *		nid: openssl algo nid or algo suite nid
- *		crypto_type: encrypt or decrypt 
- *		key : encrypt key, NULL for hash, caller make sure is ok
- *		input_text: clear text, cant NULL
- *		input_text_len: clear text len. cant <= 0
- *		output: cipher text, caller make sure enough. cant null
- *		output_len: cipher len. caller malloc the point. cant null
- * @return
- *		0: crypt ok
- *		not 0: crypt fail
-*/
-uint8_t vs_evp_cipher_crypto(uint16_t nid,
-						enum vs_evp_crypto_type crypto_type,
-						const uint8_t *key, 
-						const uint8_t *input_text,
-						int  input_text_len,
-						uint8_t *output,
-						int* output_len);
-
-/* 
- * calc hash(digist) 
- * @params
- *		nid: algo id(see openssl obj_mac.h), > 0.
- *		data: data to hash, NO NULL. 
- *		data_len: data len, > 0.
- *		output: hash result mem, caller malloc, NO NULL.
- *		output_len: hash result bytes, caller malloc, NO NULL.
- * @return
- *		0: hash ok
- *		not 0: hash fail
-*/
-uint8_t vs_evp_digist(int nid,
-						uint8_t *data,
-						uint32_t data_len,
-						uint8_t *output,
-						uint32_t *output_len);
-
-/* 
- * calc hmac
- * @params
- *		nid: algo id(see openssl obj_mac.h)
- *		key: key, NO NULL.
- *		key: key length, > 0.
- *		data: data to hash, NO NULL. 
- *		data_len: data len, > 0.
- *		output: hash result mem, caller malloc, NO NULL.
- *		output_len: hash result bytes, caller malloc, NO NULL.
- * @return
- *		0: hash ok
- *		not 0: hash fail
-*/
-uint8_t vs_hmac(int nid,
-					uint8_t *key,
-					uint32_t key_len,
-					uint8_t *data,
-					uint32_t data_len,
-					uint8_t *output,
-					uint32_t *output_len);
-
-/* 
- * base64 encode
- * @params
- *		in_str: input data
- *		in_len: input data len
- *		out_str: transe result mem address, caller make sure is enough.
- *				 *******advise: out_str bytes = 1.5*in_len********
- * @return
- *		< 0: encode fail
- *		> 0: trans result(base64) len
-*/
-int vs_base64_encode(char *in_str, int in_len, char *out_str);
-
-/* 
- * base64 decode
- * @params
- *		in_str: input data
- *		in_len: input data len
- *		out_str: transe result mem address, caller make sure is enough.
- *				 *******advise: out_str bytes = in_len********
- * @return
- *		< 0: encode fail
- *		> 0: trans result len
-*/
-int vs_base64_decode(char *in_str, int in_len, char *out_str);
 
 /* 
  * create random string 
