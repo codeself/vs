@@ -16,6 +16,9 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
+//make-build-head
+#define VS_LOCK_MEM_MAX		(1024*1024)
+
 #include "vs_base.h"
 
 uint8_t vs_create_dir(const char *path)
@@ -199,4 +202,40 @@ int vs_get_file_size(char *file)
 		close(fd);
 
 	return istat.st_size;
+}
+
+//CAP_IPC_LOCK
+void* vs_malloc_lock_mem(int mem_size)
+{
+	size_t index = 0;;
+	size_t page_size = getpagesize();
+	char *mem = NULL;
+
+	if (mem_size > VS_LOCK_MEM_MAX
+		|| mem_size <= 0)
+		return NULL;
+
+	mem = malloc();
+	if (NULL == mem)
+		return NULL;
+
+	for (index = 0; index < mem_size; i += page_size)
+		mem[i] = 0;
+
+	return (void *)mem;
+}
+
+int vs_free_lock_mem(void *ptr, int mem_size)
+{
+	if (NULL == ptr)
+		return VS_BASE_ERR;
+
+	if (mem_size > VS_LOCK_MEM_MAX
+		|| mem_size <= 0)
+		return VS_LOCK_MEM_SIZE_ERR;
+
+	if (munlock(ptr, mem_size))
+		return VS_BASE_ERR;
+
+	free(ptr);	
 }

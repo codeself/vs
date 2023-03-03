@@ -8,7 +8,7 @@
 queue_t *vs_comm_msg_queue_h = NULL;
 queue_t *vs_comm_msg_queue_m = NULL;
 queue_t *vs_comm_msg_queue_l = NULL;
-struct vs_comm_manager *vs_comm_event_send_sock = NULL;
+struct vs_comm_manager *vs_event_sock_xtgb0z1r_t8u9z212f = NULL;
 
 uint8_t vs_comm_msg_queue_init()
 {
@@ -71,7 +71,7 @@ uint8_t vs_msg_enqueue_by_cmd_id(uint8_t cmd, uint8_t msg_id, void *msg, uint16_
 
 void vs_set_event_send_sock(struct vs_comm_manager *sock)
 {
-	vs_comm_event_send_sock = sock;
+	vs_event_sock_xtgb0z1r_t8u9z212f = sock;
 }
 
 //data format: |cmd|event_id|L|V
@@ -82,32 +82,24 @@ uint8_t vs_event_report(uint8_t cmd, uint8_t event_id, void *data, uint16_t data
 	if (NULL == data)
 		return VS_BASE_ERR;
 	
-	if (NULL == vs_comm_event_send_sock)
+	if (NULL == vs_event_sock_xtgb0z1r_t8u9z212f)
 		return VS_BASE_ERR;
 
-	pthread_mutex_lock(&(vs_comm_event_send_sock->mutex));
-	if ((vs_comm_event_send_sock->fd < 0)
-		&& (NULL == vs_comm_event_send_sock->offline_log.fd)) {
-		pthread_mutex_unlock(&(vs_comm_event_send_sock->mutex));
+	pthread_mutex_lock(&(vs_event_sock_xtgb0z1r_t8u9z212f->mutex));
+	if ((vs_event_sock_xtgb0z1r_t8u9z212f->fd < 0)
+		&& (NULL == vs_event_sock_xtgb0z1r_t8u9z212f->offline_log.fd)) {
+		pthread_mutex_unlock(&(vs_event_sock_xtgb0z1r_t8u9z212f->mutex));
 		return VS_BASE_ERR;
 	}	
 	
-	ret = send(vs_comm_event_send_sock->fd, data, data_len, 0);
+	ret = send(vs_event_sock_xtgb0z1r_t8u9z212f->fd, data, data_len, 0);
 	if (ret != data_len) {
-		if (vs_comm_event_send_sock->offline_log.fd) {
-			fwrite(data, data_len, 1, vs_comm_event_send_sock->offline_log.fd);	
+		if (vs_event_sock_xtgb0z1r_t8u9z212f->offline_log.fd) {
+			fwrite(data, data_len, 1, vs_event_sock_xtgb0z1r_t8u9z212f->offline_log.fd);	
 		}
 	}
 		
-	pthread_mutex_unlock(&(vs_comm_event_send_sock->mutex));	
+	pthread_mutex_unlock(&(vs_event_sock_xtgb0z1r_t8u9z212f->mutex));	
 
 	return VS_BASE_OK;	
-}
-
-uint8_t vs_comm_sock_create(struct vs_comm_manager *sock_cfg)
-{
-	if (NULL == sock_cfg)
-		return VS_BASE_ERR;
-	
-	return VS_BASE_OK;
 }

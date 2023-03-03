@@ -15,6 +15,7 @@
 #define VS_BASE_OK				0
 #define VS_BASE_ERR				1
 #define VS_BASE_SERVER_NULL		2
+#define VS_LOCK_MEM_SIZE_ERR	3
 #define VS_BASE64_ERR			(-1)
 #define VS_BASE_ERR_1			(-1)
 
@@ -182,4 +183,27 @@ void vs_key_generator(uint8_t key[16], uint32_t seed1, uint32_t seed2);
  * 		< 0, fail
  * */
 int vs_get_file_size(char *file);
+
+/*
+ * malloc lock mem
+ *
+ * @params
+ *		mem_size: size
+ * @return
+ * 		NULL: malloc fail
+ * 		NOT NULLL: malloc success
+ * */
+void* vs_malloc_lock_mem(int mem_size);
+
+/*
+ * free lock mem
+ *
+ * @params
+ *		ptr: mem point
+ *		mem_size: mem size
+ * @return
+ * 		0: free success
+ * 		NOT 0: free fail
+ * */
+int vs_free_lock_mem(void *ptr, int mem_size);
 #endif
