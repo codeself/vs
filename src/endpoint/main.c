@@ -15,5 +15,9 @@ void vs_signal_process()
 int main(int argc, char *argv[])
 {
 	vs_signal_process();
+	
+	if (vs_cfg_parse())
+		return VS_ERR;
 
+	return VS_OK;	
 }

@@ -234,6 +234,8 @@ int vs_free_lock_mem(void *ptr, int mem_size)
 		|| mem_size <= 0)
 		return VS_LOCK_MEM_SIZE_ERR;
 
+	memset(ptr, 0, mem_size);
+
 	if (munlock(ptr, mem_size))
 		return VS_BASE_ERR;
 
