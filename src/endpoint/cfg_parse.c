@@ -23,6 +23,7 @@ int vs_cfg_parse_json(char *text, size_t size)
 	if (NULL == json)
 		return VS_ERR;
 
+	//IP
 	json_item = json_object_get(json, REMOTE_IP_KEY);
 	if (json_item) {
 		if (json_is_string(json_item)) {
@@ -36,6 +37,7 @@ int vs_cfg_parse_json(char *text, size_t size)
 		}
 	}
 
+	//PORT
 	json_item = json_object_get(json, REMOTE_PORT_KEY);
 	if (json_item) {
 		if (json_is_integer(json_item)) {
@@ -47,6 +49,7 @@ int vs_cfg_parse_json(char *text, size_t size)
 		}
 	}
 
+	//heartbeat_max_times
 	json_item = json_object_get(json, HB_MAX_TIMES_KEY);
 	if (json_item) {
 		if (json_is_integer(json_item)) {
@@ -58,6 +61,7 @@ int vs_cfg_parse_json(char *text, size_t size)
 		}
 	}
 
+	//heartbeat_interval
 	json_item = json_object_get(json, HB_INTERVA_KEY);
 	if (json_item) {
 		if (json_is_integer(json_item)) {
@@ -69,6 +73,7 @@ int vs_cfg_parse_json(char *text, size_t size)
 		}
 	}
 
+	//mem_max
 	json_item = json_object_get(json, MEM_MAX_KEY);
 	if (json_item) {
 		if (json_is_integer(json_item)) {
@@ -80,6 +85,7 @@ int vs_cfg_parse_json(char *text, size_t size)
 		}
 	}
 
+	//cpu_max
 	json_item = json_object_get(json, CPU_MAX_KEY);
 	if (json_item) {
 		if (json_is_integer(json_item)) {
@@ -91,6 +97,154 @@ int vs_cfg_parse_json(char *text, size_t size)
 		}
 	}
 
+	//run_log_max	
+	json_item = json_object_get(json, RUN_LOG_MAX_KEY);
+	if (json_item) {
+		if (json_is_integer(json_item)) {
+			cfg.run_log_max = json_integer_value(json_item);
+			if (cfg.cpu_max < 1 || cfg.cpu_max > 20)
+				goto out;
+		} else {
+			goto out;
+		}
+	}
+
+	//run_log_path
+	json_item = json_object_get(json, RUN_LOG_PATH_KEY);
+	if (json_item) {
+		if (json_is_string(json_item)) {
+			js_string_value = json_string_value(json_item);
+			if (strlen(js_string_value) >= VS_PATH_MAX_LEN)
+				goto out;
+
+			snprintf(cfg.run_log_path, VS_PATH_MAX_LEN, "%s", js_string_value);
+		} else {
+			goto out;
+		}
+	}
+
+	//offline_log_max	
+	json_item = json_object_get(json, OFFLINE_LOG_MAX_KEY);
+	if (json_item) {
+		if (json_is_integer(json_item)) {
+			cfg.offline_log_max = json_integer_value(json_item);
+			if (cfg.offline_log_max < 1 || cfg.offline_log_max > 20)
+				goto out;
+		} else {
+			goto out;
+		}
+	}
+
+	//offline_log_expire
+	json_item = json_object_get(json, OFFLINE_LOG_EXPIRE_KEY);
+	if (json_item) {
+		if (json_is_integer(json_item)) {
+			cfg.offline_log_expire = json_integer_value(json_item);
+			if (cfg.offline_log_max < 180)
+				goto out;
+		} else {
+			goto out;
+		}
+	}
+
+	//offline_log_path
+	json_item = json_object_get(json, OFFLINE_LOG_PATH_KEY);
+	if (json_item) {
+		if (json_is_string(json_item)) {
+			js_string_value = json_string_value(json_item);
+			if (strlen(js_string_value) >= VS_PATH_MAX_LEN)
+				goto out;
+
+			snprintf(cfg.offline_log_path, VS_PATH_MAX_LEN, "%s", js_string_value);
+		} else {
+			goto out;
+		}
+	}
+
+	//pki_file_path
+	json_item = json_object_get(json, PKI_PATH_KEY);
+	if (json_item) {
+		if (json_is_string(json_item)) {
+			js_string_value = json_string_value(json_item);
+			if (strlen(js_string_value) >= VS_PATH_MAX_LEN)
+				goto out;
+
+			snprintf(cfg.pki_file_path, VS_PATH_MAX_LEN, "%s", js_string_value);
+		} else {
+			goto out;
+		}
+	}
+
+	//ca_file1_name
+	json_item = json_object_get(json, CA_FILE1_KEY);
+	if (json_item) {
+		if (json_is_string(json_item)) {
+			js_string_value = json_string_value(json_item);
+			if (strlen(js_string_value) >= VS_FILE_MAX_LEN)
+				goto out;
+
+			snprintf(cfg.ca_file1_name, VS_FILE_MAX_LEN, "%s", js_string_value);
+		} else {
+			goto out;
+		}
+	}
+
+	//pkey_file1_name
+	json_item = json_object_get(json, PKEY_FILE1_KEY);
+	if (json_item) {
+		if (json_is_string(json_item)) {
+			js_string_value = json_string_value(json_item);
+			if (strlen(js_string_value) >= VS_FILE_MAX_LEN)
+				goto out;
+
+			snprintf(cfg.pkey_file1_name, VS_FILE_MAX_LEN, "%s", js_string_value);
+		} else {
+			goto out;
+		}
+	}
+
+	//ca_file2_name
+	json_item = json_object_get(json, CA_FILE2_KEY);
+	if (json_item) {
+		if (json_is_string(json_item)) {
+			js_string_value = json_string_value(json_item);
+			if (strlen(js_string_value) >= VS_FILE_MAX_LEN)
+				goto out;
+
+			snprintf(cfg.ca_file2_name, VS_FILE_MAX_LEN, "%s", js_string_value);
+		} else {
+			goto out;
+		}
+	}
+
+	//pkey_file2_name
+	json_item = json_object_get(json, PKEY_FILE2_KEY);
+	if (json_item) {
+		if (json_is_string(json_item)) {
+			js_string_value = json_string_value(json_item);
+			if (strlen(js_string_value) >= VS_FILE_MAX_LEN)
+				goto out;
+
+			snprintf(cfg.pkey_file2_name, VS_FILE_MAX_LEN, "%s", js_string_value);
+		} else {
+			goto out;
+		}
+	}
+
+	//components
+	json_item = json_object_get(json, COMPONENT_KEY);
+	if (json_item) {
+		if (json_is_string(json_item)) {
+			js_string_value = json_string_value(json_item);
+			if (strlen(js_string_value) >= VS_CPT_MAX_LEN)
+				goto out;
+
+			snprintf(cfg.components, VS_CPT_MAX_LEN, "%s", js_string_value);
+		} else {
+			goto out;
+		}
+	}
+	
 	ret = VS_OK;
 
 out:
@@ -101,7 +255,7 @@ out:
 
 int vs_cfg_parse(char *file)
 {
-	int ret = VS_ERR;
+	int ret = VS_OK;
 	size_t len = 0;
 	FILE *fp = NULL;
 	char *buff = NULL;
@@ -147,6 +301,7 @@ int vs_cfg_parse(char *file)
 
 	free(plaintext);
 	plaintext = NULL;
+	ret = VS_OK;
 
 out2:
 	free(buff);

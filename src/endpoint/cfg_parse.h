@@ -15,6 +15,7 @@
 #define RUN_LOG_PATH_KEY		"run_log_path"
 #define OFFLINE_LOG_MAX_KEY 	"offline_log_max"
 #define OFFLINE_LOG_PATH_KEY	"offline_log_path"
+#define OFFLINE_LOG_EXPIRE_KEY	"offline_log_expire"
 #define PKI_PATH_KEY			"pki_file_path"
 #define CA_FILE1_KEY			"ca_file1_name"
 #define PKEY_FILE1_KEY			"pkey_file1_name"
@@ -32,8 +33,21 @@ struct vs_ep_cfg {
 	long cpu_max;
 
 	long run_log_max;
-	long offline_eve_log_max;
-	long offline_eve_log_expire;
+	uint8_t run_log_path[VS_PATH_MAX_LEN];
+	
+	long offline_log_max;
+	long offline_log_expire;
+	uint8_t offline_log_path[VS_PATH_MAX_LEN];
+
+	uint8_t pki_file_path[VS_PATH_MAX_LEN];
+	//for client
+	uint8_t ca_file1_name[VS_FILE_MAX_LEN];
+	uint8_t pkey_file1_name[VS_FILE_MAX_LEN];
+	//for server
+	uint8_t ca_file2_name[VS_FILE_MAX_LEN];
+	uint8_t pkey_file2_name[VS_FILE_MAX_LEN];
+
+	uint8_t components[VS_CPT_MAX_LEN];
 };
 
 int vs_cfg_parse(char *file);
