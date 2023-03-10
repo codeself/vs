@@ -1,0 +1,23 @@
+{
+	"local_ip":"192.168.10.30",
+	"local_port":20000,
+	"remote_ip":"192.168.10.20",
+	"remote_port":11000,
+	"heartbeat_max_times":5,
+	"heartbeat_interval":15,
+	"mem_max":100,
+	"cpu_max":20,
+	"run_log_max":10,
+	"run_log_path":"/data/log/runlog/",
+	"run_log_file":"vs_run.log",
+	"offline_log_max":10,
+	"offline_log_expire":180,
+	"offline_log_path":"/data/log/offline/",
+	"pki_file_path":"/data/pki/",
+	"ca_file1_name":"ca1",
+	"pkey_file1_name":"pkey1",
+	"ca_file2_name":"ca2",
+	"pkey_file2_name":"pkey2",
+	"components":"adas",
+	"hub_components":"tbox"
+}
