@@ -175,62 +175,48 @@ int vs_cfg_parse_json(char *text, size_t size)
 		}
 	}
 
-	//ca_file1_name
-	json_item = json_object_get(json, CA_FILE1_KEY);
+	//ca_client
+	json_item = json_object_get(json, CA_CLIENT_KEY);
 	if (json_item) {
 		if (json_is_string(json_item)) {
 			js_string_value = json_string_value(json_item);
 			if (strlen(js_string_value) >= VS_FILE_MAX_LEN)
 				goto out;
 
-			snprintf(cfg.ca_file1_name, VS_FILE_MAX_LEN, "%s", js_string_value);
+			snprintf(cfg.ca_client, VS_FILE_MAX_LEN, "%s", js_string_value);
 		} else {
 			goto out;
 		}
 	}
 
-	//pkey_file1_name
-	json_item = json_object_get(json, PKEY_FILE1_KEY);
+    //cert_client
+	json_item = json_object_get(json, CERT_CLIENT_KEY);
 	if (json_item) {
 		if (json_is_string(json_item)) {
 			js_string_value = json_string_value(json_item);
 			if (strlen(js_string_value) >= VS_FILE_MAX_LEN)
 				goto out;
 
-			snprintf(cfg.pkey_file1_name, VS_FILE_MAX_LEN, "%s", js_string_value);
+			snprintf(cfg.cert_client, VS_FILE_MAX_LEN, "%s", js_string_value);
 		} else {
 			goto out;
 		}
 	}
 
-	//ca_file2_name
-	json_item = json_object_get(json, CA_FILE2_KEY);
+	//pkey_client
+	json_item = json_object_get(json, PKEY_CLIENT_KEY);
 	if (json_item) {
 		if (json_is_string(json_item)) {
 			js_string_value = json_string_value(json_item);
 			if (strlen(js_string_value) >= VS_FILE_MAX_LEN)
 				goto out;
 
-			snprintf(cfg.ca_file2_name, VS_FILE_MAX_LEN, "%s", js_string_value);
+			snprintf(cfg.pkey_client, VS_FILE_MAX_LEN, "%s", js_string_value);
 		} else {
 			goto out;
 		}
 	}
-
-	//pkey_file2_name
-	json_item = json_object_get(json, PKEY_FILE2_KEY);
-	if (json_item) {
-		if (json_is_string(json_item)) {
-			js_string_value = json_string_value(json_item);
-			if (strlen(js_string_value) >= VS_FILE_MAX_LEN)
-				goto out;
-
-			snprintf(cfg.pkey_file2_name, VS_FILE_MAX_LEN, "%s", js_string_value);
-		} else {
-			goto out;
-		}
-	}
-
+	
 	//components
 	json_item = json_object_get(json, COMPONENT_KEY);
 	if (json_item) {
