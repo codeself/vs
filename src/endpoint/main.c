@@ -18,6 +18,12 @@ int main(int argc, char *argv[])
 	
 	if (vs_cfg_parse())
 		return VS_ERR;
+    
+    if (log_init())
+        return VS_ERR;
+
+    if (communication_init())
+        return VS_ERR;
 
 	return VS_OK;	
 }
