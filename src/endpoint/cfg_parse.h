@@ -20,6 +20,7 @@
 #define CA_CLIENT_KEY			"ca_client"
 #define CERT_CLIENT_KEY			"cert_client"
 #define PKEY_CLIENT_KEY			"pkey_client"
+#define USE_SSL_KEY				"use_ssl"
 
 struct vs_ep_cfg {
 	uint8_t remote_ip[VS_IP_MAX_LEN];
@@ -27,6 +28,7 @@ struct vs_ep_cfg {
 	long heartbeat_max_times;
 	long heartbeat_interval;
 
+	int use_ssl;
 	long mem_max;
 	long cpu_max;
 

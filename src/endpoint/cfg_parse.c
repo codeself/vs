@@ -231,6 +231,16 @@ int vs_cfg_parse_json(char *text, size_t size)
 		}
 	}
 	
+	//use_ssl
+	json_item = json_object_get(json, USE_SSL_KEY);
+	if (json_item) {
+		if (json_is_integer(json_item)) {
+			cfg.use_ssl = json_integer_value(json_item);
+		} else {
+			goto out;
+		}
+	}
+
 	ret = VS_OK;
 
 out:
