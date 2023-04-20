@@ -17,12 +17,14 @@ void vs_log_output(char *log)
     struct timeval tv;
     struct timezone tz;
     struct tm *t;
+	size_t log_len = 0;
     char log_format[1024] = {0};
+    struct vs_ep_cfg *cfg = vs_ep_cfg_get();
 
     pthread_mutex_lock(&log_mtx);
     gettimeofday(&tv, &tz);
     t = localtime(&tv.tv_sec);
-    if (NULL == t || NULL == log) {
+    if (NULL == t || NULL == log || log_len > cfg->run_log_max) {
         pthread_mutex_unlock(&log_mtx);
         return;
     }
@@ -33,7 +35,12 @@ void vs_log_output(char *log)
 
     log_format[sizeof(log_format) - 1] = 0;
 
-    fwrite(log_format, 1, strlen(log_format), log_fp);
+	log_len = strlen(log_format);
+
+    fwrite(log_format, 1, log_len, log_fp);
+    fwrite("\n", 1, strlen("\n"), log_fp);
+	log_size += log_len;
+    log_size += strlen("\n");	
 
     pthread_mutex_unlock(&log_mtx);
 }

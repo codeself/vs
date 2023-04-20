@@ -3,6 +3,7 @@
 
 //max 512kb
 #define VS_EP_CFG_FILE_MAX_SIZE		(512*1024)
+#define VS_EP_LOG_FILE_MAX_SIZE		(2*1024*1024)
 static struct vs_ep_cfg cfg;
 
 int vs_cfg_parse_json(char *text, size_t size)
@@ -97,13 +98,16 @@ int vs_cfg_parse_json(char *text, size_t size)
 		}
 	}
 
-	//run_log_max	
+	//run_log_max
+	cfg.cpu_max = VS_EP_LOG_FILE_MAX_SIZE;	
 	json_item = json_object_get(json, RUN_LOG_MAX_KEY);
 	if (json_item) {
 		if (json_is_integer(json_item)) {
 			cfg.run_log_max = json_integer_value(json_item);
-			if (cfg.cpu_max < 1 || cfg.cpu_max > 20)
+			if (cfg.run_log_max < 1 || cfg.cpu_max > 20)
 				goto out;
+
+			cfg.run_log_max = (cfg.run_log_max * 1024 * 1024);
 		} else {
 			goto out;
 		}
