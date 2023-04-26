@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 {
 	vs_signal_process();
 	
-	if (vs_cfg_parse())
+	if (vs_cfg_parse(VS_ED_CFG))
 		return VS_ERR;
     
     if (log_init())
