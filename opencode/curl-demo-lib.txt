@@ -464,3 +464,14 @@ if(curl) {
  
   curl_easy_perform(curl);
 }
+
+要使用 libcurl 建立长连接，需要设置 CURLOPT_CONNECT_ONLY 选项。这将告诉 libcurl 只建立连接，而不执行实际的传输。
+例如：
+CURL *curl = curl_easy_init();
+if (curl) {
+  curl_easy_setopt(curl, CURLOPT_CONNECT_ONLY, 1L);
+  curl_easy_perform(curl);
+  // 长连接建立完成
+  ...
+  curl_easy_cleanup(curl);
+}
