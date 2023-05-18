@@ -212,7 +212,7 @@ int vs_cfg_parse_json(char *text, size_t size)
 	if (json_item) {
 		if (json_is_string(json_item)) {
 			js_string_value = json_string_value(json_item);
-			if (strlen(js_string_value) >= VS_FILE_MAX_LEN)
+			if (strlen(js_string_value) >= VS_KEY_MAX_LEN)
 				goto out;
 
 			snprintf(cfg.pkey_client, VS_FILE_MAX_LEN, "%s", js_string_value);

@@ -26,4 +26,26 @@ struct vs_socket {
 	pthread_mutex_t mutex;
 };
 
+static mbedtls_x509_crt_profile x509_crt_profile =
+{
+	MBEDTLS_X509_ID_FLAG( MBEDTLS_MD_SHA1 ) |
+	MBEDTLS_X509_ID_FLAG( MBEDTLS_MD_SHA224 ) |
+	MBEDTLS_X509_ID_FLAG( MBEDTLS_MD_SHA256 ) |
+	MBEDTLS_X509_ID_FLAG( MBEDTLS_MD_SHA384 ) |
+	MBEDTLS_X509_ID_FLAG( MBEDTLS_MD_SHA512 ),
+	0xFFFFFFF, /* Any PK alg    */
+	0xFFFFFFF, /* Any curve     */
+	2048,      /* 密钥长度为2048 */
+};
+
+static int mbedtls_ssl_sig_hashes[] =
+{
+	MBEDTLS_MD_SHA512,
+	MBEDTLS_MD_SHA384,
+	MBEDTLS_MD_SHA256,
+	MBEDTLS_MD_SHA224,
+	MBEDTLS_MD_SHA1,
+	MBEDTLS_MD_NONE
+};
+
 #endif
