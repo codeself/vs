@@ -40,9 +40,9 @@ struct vs_ep_cfg {
 	uint8_t offline_log_path[VS_PATH_MAX_LEN];
 
 	uint8_t pki_file_path[VS_PATH_MAX_LEN];
-	uint8_t ca_client[VS_FILE_MAX_LEN];
-	uint8_t cert_client[VS_FILE_MAX_LEN];
-	uint8_t pkey_client[VS_KEY_MAX_LEN];
+	uint8_t ca_client[VS_FILE_NAME_MAX_LEN];
+	uint8_t cert_client[VS_FILE_NAME_MAX_LEN];
+	uint8_t pkey_client[VS_FILE_NAME_MAX_LEN];
 	
 	uint8_t components[VS_CPT_MAX_LEN];
 };

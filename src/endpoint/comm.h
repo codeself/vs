@@ -12,8 +12,7 @@ typedef uint64_t unsigned long long
 #define VS_IP_MAX_LEN	40
 #define VS_PORT_MAX_LEN	6
 #define VS_PATH_MAX_LEN	256
-#define VS_FILE_MAX_LEN	8192
-#define VS_KEY_MAX_LEN	512
+#define VS_FILE_NAME_MAX_LEN    64
 #define VS_CPT_MAX_LEN	64
 
 #endif
