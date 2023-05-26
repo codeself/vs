@@ -95,6 +95,16 @@ out1:
     return NULL;
 }
 
+int vs_tls_buff_init()
+{
+	vs_client.rcv_buffer = malloc(VS_SK_RCV_MAX_LEN);
+	if (NULL == vs_client.rcv_buffer)
+		return VS_ERR;
+	vs_client.rcv_buffer_size = VS_SK_RCV_MAX_LEN;
+
+	return VS_OK;
+}
+
 int vs_mbedtls_init()
 {
 	int ret = 0;
@@ -139,7 +149,7 @@ int vs_mbedtls_init()
 		
         content = vs_file_content(cfg->pki_file_path,
                                 cfg->pkey_client,
-                                4096, 0, 0,
+                                4096, 1, 1,
                                 &content_len);
         if (NULL == content || content_len <= 0)
             return VS_ERR;
@@ -190,6 +200,75 @@ int vs_mbedtls_init()
 	return VS_OK;
 }
 
+int vs_mbedtls_connect()
+{
+	int ret = 0;
+	char port[16] = {0};
+	struct vs_ep_cfg *cfg = vs_ep_cfg_get();
+
+	mbedtls_net_free(&(vs_client->ctx.net_ctx));
+	mbedtls_ssl_session_reset(&(vs_client->ctx.ssl_ctx));
+	snprintf(port, sizeof(port), "%d", cfg->remote_port);
+
+	if(mbedtls_net_connect(&(vs_client->ctx.net_ctx),
+							(const char *)(cfg->remote_ip),
+							(const char *)port, MBEDTLS_NET_PROTO_TCP))
+		return VS_ERR;
+
+	mbedtls_ssl_set_bio(&(vs_client->ctx.ssl_ctx),
+					&(vs_client->ctx.net_ctx),
+					mbedtls_net_send,
+					mbedtls_net_recv,
+					mbedtls_net_recv_timeout);
+
+	ret = mbedtls_ssl_handshake(&(vs_client->ctx.ssl_ctx));
+	if (ret != MBEDTLS_ERR_SSL_WANT_READ
+		&& ret != MBEDTLS_ERR_SSL_WANT_WRITE)
+		return VS_ERR;
+
+
+	return VS_OK;	
+}
+
+void* vs_mbedtls_rcv(void *arg)
+{
+	int ret = 0;
+
+	while (1) {
+		usleep(100);
+		
+		ret = mbedtls_ssl_read(&(vs_client->ctx.ssl_ctx),
+						vs_client.rcv_buffer,
+						vs_client.rcv_buffer_size);
+	}
+}
+
+void* vs_mbedtls_create_task_run(void *arg)
+{
+	while (1) {
+		sleep(3);
+		//to do
+		//if vs_client->ctx.ssl_ctx is error reconnect
+	}
+}
+
+int vs_mbedtls_create_task()
+{
+	int ret = 0;
+	pthread_t pid;
+
+	ret = pthread_create(&pid, NULL, &vs_mbedtls_create_task_run, NULL);
+	if (ret)
+		return VS_ERR;
+
+	ret = pthread_create(&pid, NULL, &vs_mbedtls_rcv, NULL);
+	if (ret)
+		return VS_ERR;
+
+	return VS_OK;
+}
+
+
 int communication_init()
 {
 	struct vs_ep_cfg *cfg = vs_ep_cfg_get();
@@ -197,7 +276,13 @@ int communication_init()
 	if (NULL == cfg)
 		return VS_ERR;
 
+	if (VS_OK != vs_tls_buff_init())
+		return VS_ERR;
+	
 	if (VS_OK != vs_mbedtls_init())
+		return VS_ERR;
+
+	if (VS_OK != vs_mbedtls_create_task())
 		return VS_ERR;
 
 	return VS_OK;	

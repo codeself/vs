@@ -1,9 +1,6 @@
 #include "comm.h"
 #include "cfg_parse.h"
 
-//max 512kb
-#define VS_EP_CFG_FILE_MAX_SIZE		(512*1024)
-#define VS_EP_LOG_FILE_MAX_SIZE		(2*1024*1024)
 static struct vs_ep_cfg cfg;
 
 int vs_cfg_parse_json(char *text, size_t size)
