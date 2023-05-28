@@ -5,6 +5,7 @@
 
 #include "comm.h"
 #include "cfg_parse.h"
+#include "vs_queue_mng.h"
 
 static struct vs_socket vs_client;
 
@@ -221,6 +222,7 @@ int vs_mbedtls_connect()
 					mbedtls_net_recv,
 					mbedtls_net_recv_timeout);
 
+    mbedtls_net_set_block(&(vs_client->ctx.net_ctx));
 	ret = mbedtls_ssl_handshake(&(vs_client->ctx.ssl_ctx));
 	if (ret != MBEDTLS_ERR_SSL_WANT_READ
 		&& ret != MBEDTLS_ERR_SSL_WANT_WRITE)
@@ -235,39 +237,75 @@ void* vs_mbedtls_rcv(void *arg)
 	int ret = 0;
 
 	while (1) {
-		usleep(100);
-		
+		usleep(20000);
+	    
+        if (vs_client.ctx.net_ctx.fd <= 0)
+            continue;
+	
 		ret = mbedtls_ssl_read(&(vs_client->ctx.ssl_ctx),
 						vs_client.rcv_buffer,
 						vs_client.rcv_buffer_size);
+        if (ret == MBEDTLS_ERR_SSL_WANT_READ
+            || ret == MBEDTLS_ERR_SSL_WANT_WRITE)
+            continue;
+
+        if (ret < 0) {
+            pthread_mutex_lock(&(vs_client.mutex));
+            mbedtls_net_free(&(vs_client.ctx.net_ctx));	
+            pthread_mutex_unlock(&(vs_client.mutex));	
+        }
 	}
+}
+
+void* vs_mbedtls_send(void *arg)
+{
+    unsigned char i = 0;
+
+    for (i = 0; i < VS_QUEUE_PRI_END; i++) {
+        
+    } 
+
 }
 
 void* vs_mbedtls_create_task_run(void *arg)
 {
 	while (1) {
 		sleep(3);
-		//to do
-		//if vs_client->ctx.ssl_ctx is error reconnect
+
+        pthread_mutex_lock(&(vs_client.mutex));	
+        if (vs_client.ctx.net_ctx.fd <= 0)
+            vs_mbedtls_connect();
+        pthread_mutex_unlock(&(vs_client.mutex));	
 	}
 }
 
 int vs_mbedtls_create_task()
 {
 	int ret = 0;
-	pthread_t pid;
+	pthread_t pid1;
+	pthread_t pid2;
+	pthread_t pid3;
 
-	ret = pthread_create(&pid, NULL, &vs_mbedtls_create_task_run, NULL);
+    //connect or reconnet ssl
+	ret = pthread_create(&pid1, NULL, &vs_mbedtls_create_task_run, NULL);
 	if (ret)
 		return VS_ERR;
 
-	ret = pthread_create(&pid, NULL, &vs_mbedtls_rcv, NULL);
+	ret = pthread_create(&pid2, NULL, &vs_mbedtls_rcv, NULL);
+	if (ret)
+		return VS_ERR;
+
+	ret = pthread_create(&pid3, NULL, &vs_mbedtls_send, NULL);
 	if (ret)
 		return VS_ERR;
 
 	return VS_OK;
 }
 
+void vs_socket_init()
+{
+   pthread_mutex_init(&(vs_client.mutex), NULL); 
+}
 
 int communication_init()
 {
@@ -275,6 +313,8 @@ int communication_init()
 
 	if (NULL == cfg)
 		return VS_ERR;
+
+    vs_socket_init();
 
 	if (VS_OK != vs_tls_buff_init())
 		return VS_ERR;
