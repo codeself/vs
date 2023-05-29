@@ -6,7 +6,9 @@
 #include "comm.h"
 #include "cfg_parse.h"
 #include "vs_queue_mng.h"
+#include "data_process.h"
 
+static uint32_t send_data_len_total = 0;
 static struct vs_socket vs_client;
 
 char* vs_file_content(char *path,
@@ -235,6 +237,9 @@ int vs_mbedtls_connect()
 void* vs_mbedtls_rcv(void *arg)
 {
 	int ret = 0;
+	char ret_dp = 0;
+	struct vs_msg_head *msg_head = NULL;
+	struct vs_msg_body_prefix *body_prefix = NULL;
 
 	while (1) {
 		usleep(20000);
@@ -254,17 +259,68 @@ void* vs_mbedtls_rcv(void *arg)
             mbedtls_net_free(&(vs_client.ctx.net_ctx));	
             pthread_mutex_unlock(&(vs_client.mutex));	
         }
+
+		msg_head = (struct vs_msg_head *)(vs_client.rcv_buffer);
+		body_prefix = (struct vs_msg_body_prefix *)(vs_client.rcv_buffer + sizeof(struct vs_msg_head));	
+		
+		ret_dp = rcv_data_process(vs_client.rcv_buffer, ret);
+	
+		if (0 = msg_head->subpkg)
+			response_data_process(msg_head->cmd, body_prefix->tag, ret_dp);	
 	}
+}
+
+void vs_mbedtls_send_do(char pri)
+{
+	int ret = 0;
+	char *data = NULL;
+	queue_t *q = NULL;
+	short data_len = 0;
+	
+	q = vs_queue_get(pri);
+ 	if (NULL == q)
+		return;
+
+	data = (char *)queue_pop_left(q);
+	if (NULL == data)
+		return;
+	
+	data_len = *((short *)data);
+
+	//to do list
+	//1. local storage 
+	//2. send fail
+	ret = mbedtls_ssl_write(&(vs_client->ctx.ssl_ctx), (const unsigned char *)(data+sizeof(short)), data_len);
+
+	//to do current-limiting 4G
+	if (ret > 0)
+		send_data_len_total += data_len;
 }
 
 void* vs_mbedtls_send(void *arg)
 {
     unsigned char i = 0;
+    unsigned char j = 0;
+    unsigned char num = 0;
 
-    for (i = 0; i < VS_QUEUE_PRI_END; i++) {
-        
-    } 
+	while (1) {
+		usleep(50000);
+    	
+		for (i = 0; i < VS_QUEUE_PRI_END; i++) {
+			
+			if (i == VS_QUEUE_PRI_H)
+				num = 5;
+			else if (i == VS_QUEUE_PRI_M)
+				num = 3;
+			else if (i == VS_QUEUE_PRI_L)
+				num = 1;
+			else 
+				continue;
 
+			for (j = 0; j < num; j++)
+				vs_mbedtls_send_do(i);	
+		}
+	}
 }
 
 void* vs_mbedtls_create_task_run(void *arg)
