@@ -11,6 +11,10 @@
 static uint32_t send_data_len_total = 0;
 static struct vs_socket vs_client;
 
+#define MSG_SEND_NUM_PRI_H	5
+#define MSG_SEND_NUM_PRI_M	3
+#define MSG_SEND_NUM_PRI_L	1
+
 char* vs_file_content(char *path,
                     char *file_name,
                     unsigned int max_size,
@@ -238,6 +242,8 @@ void* vs_mbedtls_rcv(void *arg)
 {
 	int ret = 0;
 	char ret_dp = 0;
+	short *len = NULL;
+	struct rule_rcv_result result;
 	struct vs_msg_head *msg_head = NULL;
 	struct vs_msg_body_prefix *body_prefix = NULL;
 
@@ -263,10 +269,16 @@ void* vs_mbedtls_rcv(void *arg)
 		msg_head = (struct vs_msg_head *)(vs_client.rcv_buffer);
 		body_prefix = (struct vs_msg_body_prefix *)(vs_client.rcv_buffer + sizeof(struct vs_msg_head));	
 		
-		ret_dp = rcv_data_process(vs_client.rcv_buffer, ret);
-	
+		ret_dp = rcv_process(vs_client.rcv_buffer, ret);
+
+		memset(&result, 0, sizeof(result));
+		result.tag = body_prefix->tag;
+		len = (short *)(result.len);
+		*len = 1;
+		*len = htons(*len);
+		result.result = ret_dp;
 		if (0 = msg_head->subpkg)
-			response_data_process(msg_head->cmd, body_prefix->tag, ret_dp);	
+			send_process(msg_head->cmd, (char *)(&result), sizeof(result), VS_QUEUE_PRI_H, 0);	
 	}
 }
 
@@ -289,12 +301,19 @@ void vs_mbedtls_send_do(char pri)
 
 	//to do list
 	//1. local storage 
-	//2. send fail
+	//2. send fail, reconect ssl?
+	//3. compress
 	ret = mbedtls_ssl_write(&(vs_client->ctx.ssl_ctx), (const unsigned char *)(data+sizeof(short)), data_len);
 
 	//to do current-limiting 4G
 	if (ret > 0)
 		send_data_len_total += data_len;
+
+	if (data) {
+		memset(data, 0, (data_len + sizeof(short)));
+		free(data);
+		data = NULL;
+	}
 }
 
 void* vs_mbedtls_send(void *arg)
@@ -309,11 +328,11 @@ void* vs_mbedtls_send(void *arg)
 		for (i = 0; i < VS_QUEUE_PRI_END; i++) {
 			
 			if (i == VS_QUEUE_PRI_H)
-				num = 5;
+				num = MSG_SEND_NUM_PRI_H;
 			else if (i == VS_QUEUE_PRI_M)
-				num = 3;
+				num = MSG_SEND_NUM_PRI_M;
 			else if (i == VS_QUEUE_PRI_L)
-				num = 1;
+				num = MSG_SEND_NUM_PRI_L;
 			else 
 				continue;
 

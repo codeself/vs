@@ -21,6 +21,7 @@
 #define CERT_CLIENT_KEY			"cert_client"
 #define PKEY_CLIENT_KEY			"pkey_client"
 #define USE_SSL_KEY				"use_ssl"
+#define COMPRESS_KEY			"compress"
 
 struct vs_ep_cfg {
 	uint8_t remote_ip[VS_IP_MAX_LEN];
@@ -43,7 +44,8 @@ struct vs_ep_cfg {
 	uint8_t ca_client[VS_FILE_NAME_MAX_LEN];
 	uint8_t cert_client[VS_FILE_NAME_MAX_LEN];
 	uint8_t pkey_client[VS_FILE_NAME_MAX_LEN];
-	
+
+	uint8_t event_compress;	
 	uint8_t components[VS_CPT_MAX_LEN];
 };
 

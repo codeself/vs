@@ -48,4 +48,10 @@ static int mbedtls_ssl_sig_hashes[] =
 	MBEDTLS_MD_NONE
 };
 
+struct rule_rcv_result {
+	uint8_t tag;
+	uint8_t len[2];
+	char result;
+};
+
 #endif

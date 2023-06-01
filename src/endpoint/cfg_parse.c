@@ -242,6 +242,16 @@ int vs_cfg_parse_json(char *text, size_t size)
 		}
 	}
 
+	//compress
+	json_item = json_object_get(json, COMPRESS_KEY);
+	if (json_item) {
+		if (json_is_integer(json_item)) {
+			cfg.event_compress = json_integer_value(json_item);
+		} else {
+			goto out;
+		}
+	}
+
 	ret = VS_OK;
 
 out:

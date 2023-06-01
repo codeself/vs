@@ -18,5 +18,7 @@ typedef uint64_t unsigned long long
 #define VS_ED_CFG   					"/data/vs-ep-cfg"
 #define VS_EP_CFG_FILE_MAX_SIZE     	(512*1024)
 #define VS_EP_LOG_FILE_MAX_SIZE     	(2*1024*1024)
+#define VS_CMD_MAX						15
+#define VS_TAG_MAX						63
 
 #endif

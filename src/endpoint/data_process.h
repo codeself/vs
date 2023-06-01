@@ -20,7 +20,8 @@ struct vs_msg_body_prefix {
 
 typedef char (*process_func)(uint8_t *data, int data_len);
 
-char rcv_data_process(uint8_t *data, int data_len);
-char response_data_process(uint8_t cmd, uint8_t tag, char result);
+char rcv_process(uint8_t *data, int data_len);
+char send_process(uint8_t cmd, char *data, uint16_t data_len, uint8_t pri, uint8_t subpkg);
 
+char rcv_func_register(uint8_t cmd, uint8_t tag, process_func *func);
 #endif
