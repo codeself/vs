@@ -51,22 +51,11 @@ int audit_open(void)
 
 	if (fd < 0) {
 		saved_errno = errno;
-		if (errno == EINVAL || errno == EPROTONOSUPPORT ||
-				errno == EAFNOSUPPORT)
-			audit_msg(LOG_ERR,
-				"Error - audit support not in kernel"); 
-		else
-			audit_msg(LOG_ERR,
-				"Error opening audit netlink socket (%s)", 
-				strerror(errno));
 		errno = saved_errno;
 		return fd;
 	}
 	if (fcntl(fd, F_SETFD, FD_CLOEXEC) == -1) {
 		saved_errno = errno;
-		audit_msg(LOG_ERR, 
-			"Error setting audit netlink socket CLOEXEC flag (%s)", 
-			strerror(errno));
 		close(fd);
 		errno = saved_errno;
 		return -1;
@@ -107,21 +96,14 @@ retry:
 			goto retry;
 		if (errno != EAGAIN) {
 			int saved_errno = errno;
-			audit_msg(LOG_ERR, 
-				"Error receiving audit netlink packet (%s)", 
-				strerror(errno));
 			errno = saved_errno;
 		}
 		return -errno;
 	}
 	if (nladdrlen != sizeof(nladdr)) {
-		audit_msg(LOG_ERR, 
-			"Bad address size reading audit netlink socket");
 		return -EPROTO;
 	}
 	if (nladdr.nl_pid) {
-		audit_msg(LOG_ERR, 
-			"Spoofed packet received on audit netlink socket");
 		return -EINVAL;
 	}
 
@@ -152,12 +134,8 @@ static int adjust_reply(struct audit_reply *rep, int len)
 #endif
 	if (!NLMSG_OK(rep->nlh, (unsigned int)len)) {
 		if (len == sizeof(rep->msg)) {
-			audit_msg(LOG_ERR, 
-				"Netlink event from kernel is too big");
 			errno = EFBIG;
 		} else {
-			audit_msg(LOG_ERR, 
-			"Netlink message from kernel was not OK");
 			errno = EBADE;
 		}
 		return 0;

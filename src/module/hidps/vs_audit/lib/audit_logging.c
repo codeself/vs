@@ -65,9 +65,6 @@ static void _resolve_addr(char buf[], const char *host)
 
 	e = getaddrinfo(host, NULL, &hints, &ai);
 	if (e != 0) {
-		audit_msg(LOG_ERR, 
-			"resolve_addr: cannot resolve hostname %s (%s)",
-			host, gai_strerror(e));
 		return;
 	}
 	// What to do if more than 1 addr?
@@ -156,7 +153,6 @@ static char *_get_exename(char *exename, int size)
 	/* get the name of the current executable */
 	if ((res = readlink("/proc/self/exe", tmp, PATH_MAX)) == -1) {
 		strcpy(exename, "\"?\"");
-		audit_msg(LOG_ERR, "get_exename: cannot determine executable");
 	} else {
 		tmp[res] = '\0';
 		if (audit_value_needs_encoding(tmp, res))
@@ -209,7 +205,6 @@ static int check_ttyname(const char *ttyn)
 	if (lstat(ttyn, &statbuf)
 		|| !S_ISCHR(statbuf.st_mode)
 		|| (statbuf.st_nlink > 1 && strncmp(ttyn, "/dev/", 5))) {
-		audit_msg(LOG_ERR, "FATAL: bad tty %s", ttyn);
 		return 1;
         }
 	return 0;
@@ -574,8 +569,6 @@ int audit_log_user_avc_message(int audit_fd, int type, const char *message,
 	errno = 0;
 	retval = audit_send_user_message( audit_fd, type, REAL_ERR, buf );
 	if (retval == -EPERM && !audit_can_write()) {
-		syslog(LOG_ERR, "Can't send to audit system: %s %s",
-			audit_msg_type_to_name(type), buf);
 		return 0;
 	}
 	if ((retval < 1) && errno == 0)

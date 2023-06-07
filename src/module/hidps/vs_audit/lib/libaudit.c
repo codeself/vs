@@ -122,8 +122,6 @@ int audit_request_status(int fd)
 {
 	int rc = audit_send(fd, AUDIT_GET, NULL, 0);
 	if (rc < 0) 
-		audit_msg(audit_priority(errno),
-			"Error sending status request (%s)", strerror(-rc));
 	return rc;
 }
 
@@ -199,14 +197,12 @@ static int audit_failure_parser(const char *val, int line)
 {
 	int i;
 
-	audit_msg(LOG_DEBUG, "audit_failure_parser called with: %s", val);
 	for (i=0; failure_actions[i].name != NULL; i++) {
 		if (strcasecmp(val, failure_actions[i].name) == 0) {
 			config.failure_action = failure_actions[i].option;
 			return 0;
 		}
 	}
-	audit_msg(LOG_ERR, "Option %s not found - line %d", val, line);
 	return 1;
 }
 
@@ -224,12 +220,8 @@ static int load_libaudit_config(const char *path)
 	rc = open(path, O_NOFOLLOW|O_RDONLY);
 	if (rc < 0) {
 		if (errno != ENOENT) {
-			audit_msg(LOG_ERR, "Error opening %s (%s)",
-				path, strerror(errno));
 			return 1;
 		}
-		audit_msg(LOG_WARNING,
-			"Config file %s doesn't exist, skipping", path);
 		return 0;
 	}
 	fd = rc;
@@ -237,25 +229,19 @@ static int load_libaudit_config(const char *path)
 	/* check the file's permissions: owned by root, not world writable,
 	 * not symlink.
 	 */
-	audit_msg(LOG_DEBUG, "Config file %s opened for parsing", path);
 	if (fstat(fd, &st) < 0) {
-		audit_msg(LOG_ERR, "Error fstat'ing %s (%s)",
-			path, strerror(errno));
 		close(fd);
 		return 1;
 	}
 	if (st.st_uid != 0) {
-		audit_msg(LOG_ERR, "Error - %s isn't owned by root", path);
 		close(fd);
 		return 1;
 	}
 	if ((st.st_mode & S_IWOTH) == S_IWOTH) {
-		audit_msg(LOG_ERR, "Error - %s is world writable", path);
 		close(fd);
 		return 1;
 	}
 	if (!S_ISREG(st.st_mode)) {
-		audit_msg(LOG_ERR, "Error - %s is not a regular file", path);
 		close(fd);
 		return 1;
 	}
@@ -263,8 +249,6 @@ static int load_libaudit_config(const char *path)
 	/* it's ok, read line by line */
 	f = fdopen(fd, "rm");
 	if (f == NULL) {
-		audit_msg(LOG_ERR, "Error - fdopen failed (%s)",
-			strerror(errno));
 		close(fd);
 		return 1;
 	}
@@ -278,19 +262,10 @@ static int load_libaudit_config(const char *path)
 			case 0: // fine
 				break;
 			case 1: // not the right number of tokens.
-				audit_msg(LOG_ERR,
-				"Wrong number of arguments for line %d in %s",
-					lineno, path);
 				break;
 			case 2: // no '=' sign
-				audit_msg(LOG_ERR,
-					"Missing equal sign for line %d in %s",
-					lineno, path);
 				break;
 			default: // something else went wrong...
-				audit_msg(LOG_ERR,
-					"Unknown error for line %d in %s",
-					lineno, path);
 				break;
 		}
 		if (nv.name == NULL) {
@@ -305,9 +280,6 @@ static int load_libaudit_config(const char *path)
 		/* identify keyword or error */
 		kw = kw_lookup(nv.name);
 		if (kw->name == NULL) {
-			audit_msg(LOG_ERR,
-				"Unknown keyword \"%s\" in line %d of %s",
-				nv.name, lineno, path);
 			fclose(f);
 			return 1;
 		}
@@ -355,9 +327,6 @@ int audit_set_enabled(int fd, uint32_t enabled)
 	s.mask    = AUDIT_STATUS_ENABLED;
 	s.enabled = enabled;
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending enable request (%s)", strerror(-rc));
 	return rc;
 }
 
@@ -428,10 +397,6 @@ int audit_set_failure(int fd, uint32_t failure)
 	s.mask    = AUDIT_STATUS_FAILURE;
 	s.failure = failure;
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending failure mode request (%s)",
-			strerror(-rc));
 	return rc;
 }
 
@@ -450,9 +415,6 @@ int audit_set_pid(int fd, uint32_t pid, rep_wait_t wmode)
 	s.pid     = pid;
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
 	if (rc < 0) {
-		audit_msg(audit_priority(errno),
-			"Error setting audit daemon pid (%s)",
-			strerror(-rc));
 		return rc;
 	}
 	if (wmode == WAIT_NO)
@@ -481,10 +443,6 @@ int audit_set_rate_limit(int fd, uint32_t limit)
 	s.mask       = AUDIT_STATUS_RATE_LIMIT;
 	s.rate_limit = limit;
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending rate limit request (%s)",
-			strerror(-rc));
 	return rc;
 }
 
@@ -497,10 +455,6 @@ int audit_set_backlog_limit(int fd, uint32_t limit)
 	s.mask          = AUDIT_STATUS_BACKLOG_LIMIT;
 	s.backlog_limit = limit;
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending backlog limit request (%s)",
-			strerror(-rc));
 	return rc;
 }
 
@@ -515,10 +469,6 @@ int audit_set_backlog_wait_time(int fd, uint32_t bwt)
 	s.mask          = AUDIT_STATUS_BACKLOG_WAIT_TIME;
 	s.backlog_wait_time = bwt;
 	rc = audit_send(fd, AUDIT_SET, &s, sizeof(s));
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending backlog limit request (%s)",
-			strerror(-rc));
 #endif
 	return rc;
 }
@@ -536,10 +486,6 @@ int audit_reset_lost(int fd)
 	s.mask = AUDIT_STATUS_LOST;
 	s.lost = 0;
 	rc = __audit_send(fd, AUDIT_SET, &s, sizeof(s), &seq);
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending lost reset request (%s)",
-			strerror(-rc));
 	return rc;
 }
 
@@ -555,10 +501,6 @@ int audit_reset_backlog_wait_time_actual(int fd)
 	s.mask          = AUDIT_STATUS_BACKLOG_WAIT_TIME_ACTUAL;
 	s.backlog_wait_time_actual = 0;
 	rc = __audit_send(fd, AUDIT_SET, &s, sizeof(s), &seq);
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending backlog wait time actual reset request (%s)",
-			strerror(-rc));
 #endif
 	return rc;
 }
@@ -576,10 +518,6 @@ int audit_set_feature(int fd, unsigned feature, unsigned value, unsigned lock)
 	if (lock)
 		f.lock = AUDIT_FEATURE_TO_MASK(feature);
 	rc = audit_send(fd, AUDIT_SET_FEATURE, &f, sizeof(f));
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error setting feature (%s)",
-			strerror(-rc));
 	return rc;
 #else
 	errno = EINVAL;
@@ -595,10 +533,6 @@ int audit_request_features(int fd)
 
 	memset(&f, 0, sizeof(f));
 	rc = audit_send(fd, AUDIT_GET_FEATURE, &f, sizeof(f));
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error getting feature (%s)",
-			strerror(-rc));
 	return rc;
 #else
 	errno = EINVAL;
@@ -679,20 +613,12 @@ uint32_t audit_get_features(void)
 int audit_request_rules_list_data(int fd)
 {
 	int rc = audit_send(fd, AUDIT_LIST_RULES, NULL, 0);
-	if (rc < 0 && rc != -EINVAL)
-		audit_msg(audit_priority(errno),
-			"Error sending rule list data request (%s)",
-			strerror(-rc));
 	return rc;
 }
 
 int audit_request_signal_info(int fd)
 {
 	int rc = audit_send(fd, AUDIT_SIGNAL_INFO, NULL, 0);
-	if (rc < 0)
-		audit_msg(LOG_WARNING,
-			"Error sending signal_info request (%s)",
-			strerror(-rc));
 	return rc;
 }
 
@@ -742,8 +668,6 @@ int audit_update_watch_perms(struct audit_rule_data *rule, int perms)
 	unsigned int i, done=0;
 
 	if (rule->field_count < 1) {
-		audit_msg(LOG_ERR,
-			 "Permissions should be preceeded by other fields");
 		return -1;
 	}
 
@@ -757,8 +681,6 @@ int audit_update_watch_perms(struct audit_rule_data *rule, int perms)
 	if (!done) {
 		// If not check to see if we have room to add a field
 		if (rule->field_count >= (AUDIT_MAX_FIELDS - 1)) {
-			audit_msg(LOG_ERR,
-				  "Too many fields when adding permissions");
 			return -2;
 		}
 
@@ -783,18 +705,15 @@ int audit_add_watch_dir(int type, struct audit_rule_data **rulep,
 	struct audit_rule_data *rule = *rulep;
 
 	if (rule && rule->field_count) {
-		audit_msg(LOG_ERR, "Rule is not empty\n");
 		return -1;
 	}
 	if (type != AUDIT_WATCH && type != AUDIT_DIR) {
-		audit_msg(LOG_ERR, "Invalid type used\n");
 		return -1;
 	}
 
 	*rulep = realloc(rule, len + sizeof(*rule));
 	if (*rulep == NULL) {
 		free(rule);
-		audit_msg(LOG_ERR, "Cannot realloc memory!\n");
 		return -1;
 	}
 	rule = *rulep;
@@ -830,11 +749,6 @@ int audit_add_rule_data(int fd, struct audit_rule_data *rule,
 	rule->action = action;
 	rc = audit_send(fd, AUDIT_ADD_RULE, rule,
 			sizeof(struct audit_rule_data) + rule->buflen);
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending add rule data request (%s)",
-				errno == EEXIST ?
-				"Rule exists" : strerror(-rc));
 	return rc;
 }
 
@@ -847,15 +761,6 @@ int audit_delete_rule_data(int fd, struct audit_rule_data *rule,
 	rule->action = action;
 	rc = audit_send(fd, AUDIT_DEL_RULE, rule,
 			sizeof(struct audit_rule_data) + rule->buflen);
-	if (rc < 0) {
-		if (rc == -ENOENT)
-			audit_msg(LOG_WARNING,
-			"Error sending delete rule request (No rule matches)");
-		else
-			audit_msg(audit_priority(errno),
-				"Error sending delete rule data request (%s)",
-				strerror(-rc));
-	}
 	return rc;
 }
 
@@ -865,10 +770,6 @@ int audit_delete_rule_data(int fd, struct audit_rule_data *rule,
 int audit_trim_subtrees(int fd)
 {
 	int rc = audit_send(fd, AUDIT_TRIM, NULL, 0);
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending trim subtrees command (%s)",
-			strerror(-rc));
 	return rc;
 }
 
@@ -894,10 +795,6 @@ int audit_make_equivalent(int fd, const char *mount_point,
 	memcpy(&cmd->buf[len1], subtree, len2);
 
 	rc = audit_send(fd, AUDIT_MAKE_EQUIV, cmd, sizeof(*cmd) + len1 + len2);
-	if (rc < 0)
-		audit_msg(audit_priority(errno),
-			"Error sending make_equivalent command (%s)",
-			strerror(-rc));
 	free(cmd);
 	return rc;
 }
@@ -951,7 +848,6 @@ int audit_setloginuid(uid_t uid)
 			if (block < 0) {
 				if (errno == EINTR)
 					continue;
-				audit_msg(LOG_ERR, "Error writing loginuid");
 				close(o);
 				return 1;
 			}
@@ -960,7 +856,6 @@ int audit_setloginuid(uid_t uid)
 		}
 		close(o);
 	} else {
-		audit_msg(LOG_ERR, "Error opening /proc/self/loginuid");
 		rc = 1;
 	}
 	return rc;
@@ -1593,8 +1488,6 @@ int audit_rule_fieldpair_data(struct audit_rule_data **rulep, const char *pair,
 								4294967295;
 				else if (audit_name_to_uid(v,
 					&rule->values[rule->field_count])) {
-					audit_msg(LOG_ERR, "Unknown user: %s",
-						v);
 					return -EAU_PRINT_NOTHING;
 				}
 			}
@@ -1610,8 +1503,6 @@ int audit_rule_fieldpair_data(struct audit_rule_data **rulep, const char *pair,
 			else {
 				if (audit_name_to_gid(v,
 					&rule->values[rule->field_count])) {
-					audit_msg(LOG_ERR, "Unknown group: %s",
-						v);
 					return -EAU_PRINT_NOTHING;
 				}
 			}
@@ -1697,7 +1588,6 @@ int audit_rule_fieldpair_data(struct audit_rule_data **rulep, const char *pair,
 			*rulep = realloc(rule, sizeof(*rule) + rule->buflen);
 			if (*rulep == NULL) {
 				free(rule);
-				audit_msg(LOG_ERR, "Cannot realloc memory!\n");
 				return -3;
 			} else {
 				rule = *rulep;
